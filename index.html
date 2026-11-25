@@ -187,7 +187,7 @@ const MO=['জানুয়ারি','ফেব্রুয়ারি','ম
 const DY=['রোববার','সোমবার','মঙ্গলবার','বুধবার','বৃহস্পতিবার','শুক্রবার','শনিবার'];
 const KEY='cctv_duty_v7';
 const $=id=>document.getElementById(id);
-let st={ptr:0,per:1,shifts:[{n:'শিফট ১',t:'০৬.১৫-১২.০০'},{n:'শিফট ২',t:'১২.০০-১৭.৪৫'},{n:'শিফট ৩',t:'১৭.৪৫-২২.৪৫'},{n:'শিফট ৪',t:'২২.৪৫-০৬.১৫'}],extra:[],days:{}};
+let st={ptr:0,per:1,shifts:[{n:'শিফট ১',t:'০৬.১৫-১২.০০'},{n:'শিফট ২',t:'১২.০০-১৭.৩০'},{n:'শিফট ৩',t:'১৭.৩০-২২.৩০'},{n:'শিফট ৪',t:'২২.৩০-০৬.১৫'}],extra:[],days:{}};
 try{const r=localStorage.getItem(KEY);if(r)st=Object.assign(st,JSON.parse(r));}catch(e){}
 try{const ob=st.bl===undefined?9:st.bl,dl=B.length-ob;if(dl!==0){const sh=v=>(v==null?v:(v>=ob?v+dl:v));Object.values(st.days||{}).forEach(y=>{y.abs=(y.abs||[]).map(sh);y.assign=(y.assign||[]).map(a=>a.map(sh));});if(st.ptr>=ob)st.ptr+=dl;}st.bl=B.length;}catch(e){}
 try{const o=JSON.parse(localStorage.getItem('cctv_duty_v6')||localStorage.getItem('cctv_duty_v5')||localStorage.getItem('cctv_duty_v4')||localStorage.getItem('cctv_duty_v3')||localStorage.getItem('cctv_duty_v2')||'null');if(o&&o.extra&&!(st.extra||[]).length)st.extra=o.extra;}catch(e){}
