@@ -54,6 +54,13 @@ details summary{cursor:pointer;font-weight:700;color:var(--blue);font-size:.85re
 @media print{.ph img{width:100px;height:100px}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}body{background:#fff;color:#000;padding:0}.hd,#out,#share,.card,.noprint{display:none!important}.pcard{border:2px solid #999;border-radius:0;max-width:620px;margin:0 auto}.pt{font-size:1.6rem}.pd{font-size:1.6rem;font-weight:700}.ptm{font-size:1.5rem}.pn{font-size:1.4rem}.pr{padding:14px 0}.pk{width:38px;height:38px;font-size:1.1rem}.psig{display:block;text-align:right;padding:60px 24px 24px;font-weight:600;line-height:1.9}}
 
 .rpt{background:#fff;color:#1a1a1a;border:2px solid #c9a84c;border-radius:14px;overflow:hidden;margin-bottom:12px;font-family:'Hind Siliguri',sans-serif}
+.rpt .pie{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:6px 12px}
+.rpt .pie svg{width:190px;height:190px;flex:none}
+.rpt .pl{flex:1;min-width:210px;font-size:.7rem}
+.rpt .pl div{display:flex;align-items:center;gap:6px;padding:2px 0;border-bottom:1px dotted #e0d8bb}
+.rpt .pl i{width:11px;height:11px;border-radius:3px;flex:none;display:inline-block}
+.rpt .pl span{flex:1}
+.rpt .pl b{white-space:nowrap}
 #rptout:empty{display:none}
 .rpt table{width:100%;border-collapse:collapse;font-size:.72rem}
 .rpt th{background:#1a3a6b;color:#fff;padding:4px 3px;font-weight:600;text-align:left}
@@ -519,6 +526,7 @@ function rhtml(c){
   let h='<div class="ph">'+(lg[0]||'')+'<div class="phc"><div class="pt">সিসিটিভি ডিউটি রিপোর্ট</div><div class="pd">'+(R.w?'সাপ্তাহিক':'মাসিক')+' • '+rlabel(R)+'</div></div>'+(lg[1]||'')+'</div>';
   h+='<div class="sm"><div><b>'+BN(c.days.length)+'/'+BN(c.total)+'</b>বণ্টিত দিন</div>'+(c.miss?'<div><b>'+BN(c.miss)+'</b>বণ্টন নেই</div>':'')+(c.draft?'<div><b>'+BN(c.draft)+'</b>খসড়া দিন</div>':'')+'<div><b>'+fm(c.all)+'</b>মোট ডিউটি-সময়</div>'+(c.empty?'<div><b>'+BN(c.empty)+'</b>খালি স্লট</div>':'')+'</div>';
   h+='<div class="lg">'+st.shifts.map((s,i)=>'শি'+BN(i+1)+' = '+esc(s.t)+' ('+fm(c.mins[i])+')').join(' &nbsp;|&nbsp; ')+'</div>';
+  h+=rpie(c);
   const showAbs=Object.keys(c.per).some(i=>c.per[i].abs>0);
   c.G.forEach(g=>{
     if(!g.ids.length)return;
@@ -536,13 +544,31 @@ function rhtml(c){
   }
   return h+'<div class="pf" style="margin-top:10px">তৈরি: '+fdt(new Date())+' • আইসিটি শাখা, বিপিএ, সারদা, রাজশাহী</div>';
 }
+function rpie(c){
+  const it=Object.keys(c.per).map(Number).filter(i=>c.per[i].min>0).sort((a,b)=>c.per[b].min-c.per[a].min);
+  if(!it.length||!c.all)return '';
+  const col=n=>'hsl('+Math.round((n*137.5)%360)+','+(55+(n%3)*10)+'%,'+(42+(n%2)*8)+'%)';
+  const cx=100,cy=100,r=92,ri=52;let a0=-Math.PI/2,sv='',lg='';
+  it.forEach((i,n)=>{
+    const m=c.per[i].min,fr=m/c.all,a1=a0+fr*2*Math.PI,cl=col(n),pc=(fr*100).toFixed(1);
+    if(fr>0.9999){sv+='<path fill="'+cl+'" fill-rule="evenodd" d="M'+(cx-r)+','+cy+'a'+r+','+r+' 0 1,0 '+2*r+',0a'+r+','+r+' 0 1,0 '+(-2*r)+',0zM'+(cx-ri)+','+cy+'a'+ri+','+ri+' 0 1,1 '+2*ri+',0a'+ri+','+ri+' 0 1,1 '+(-2*ri)+',0z"/>';}
+    else{
+      const P=(R,a)=>(cx+R*Math.cos(a)).toFixed(2)+','+(cy+R*Math.sin(a)).toFixed(2),lf=fr>0.5?1:0;
+      sv+='<path fill="'+cl+'" stroke="#fff" stroke-width="1" d="M'+P(r,a0)+'A'+r+','+r+' 0 '+lf+',1 '+P(r,a1)+'L'+P(ri,a1)+'A'+ri+','+ri+' 0 '+lf+',0 '+P(ri,a0)+'Z"/>';
+    }
+    a0=a1;
+    lg+='<div><i style="background:'+cl+'"></i><span>'+esc(snn(S[i]))+'</span><b>'+fm(m)+' • '+BN(pc)+'%</b></div>';
+  });
+  sv+='<text x="100" y="95" text-anchor="middle" font-size="12" fill="#555" font-family="inherit">মোট</text><text x="100" y="113" text-anchor="middle" font-size="13" font-weight="700" fill="#1a3a6b" font-family="inherit">'+fm(c.all)+'</text>';
+  return '<div class="gh">ডিউটি-সময়ের অংশ (শতকরা)</div><div class="pie"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">'+sv+'</svg><div class="pl">'+lg+'</div></div>';
+}
 function rmsg(c){
   const R=c.R;
   let m='*সিসিটিভি ডিউটি রিপোর্ট ('+(R.w?'সাপ্তাহিক':'মাসিক')+')*\n*'+rlabel(R)+'*\nবণ্টিত দিন: '+BN(c.days.length)+'/'+BN(c.total)+' • মোট '+fm(c.all)+'\n';
   c.G.forEach(g=>{
     if(!g.ids.length)return;
     m+='\n*'+g.n+'* (গড় '+fm(g.avg)+')\n';
-    g.ids.forEach((i,n)=>{const q=c.per[i];m+=BN(n+1)+'. '+fnm(S[i])+' — '+BN(q.dates.length)+' দিন, '+fm(q.min)+' ('+fsg(q.min-g.avg)+')\n';});
+    g.ids.forEach((i,n)=>{const q=c.per[i];m+=BN(n+1)+'. '+fnm(S[i])+' — '+BN(q.dates.length)+' দিন, '+fm(q.min)+' • '+BN((c.all?q.min/c.all*100:0).toFixed(1))+'% ('+fsg(q.min-g.avg)+')\n';});
     m+='পার্থক্য (সর্বোচ্চ−সর্বনিম্ন): '+fm(g.mx-g.mn)+(g.tot?(g.ok?' ✔ ভারসাম্য ভালো':' ⚠ অসম'):'')+'\n';
   });
   if(R.w&&c.days.length){
