@@ -170,12 +170,11 @@ details[open]>summary{margin-bottom:10px}
     <h3>তারিখ</h3>
     <div class="dp"><button class="btn" onclick="stepD(-1)">‹</button><input type="date" id="date"><button class="btn" onclick="stepD(1)">›</button></div>
     <div id="dlab" class="hint"></div>
-    <h3 style="margin-top:12px">অনুপস্থিত <span class="mut">ছুটি/অন্য কাজ—ছুঁয়ে বাছুন</span></h3>
-    <div class="ab" id="abs"></div>
-    <div class="acts"><button class="btn p lg" id="gbtn" onclick="gen()">⚡ ডিউটি বণ্টন করুন</button></div>
+    <details style="margin-top:12px"><summary>অনুপস্থিত <span class="mut" id="abn" style="font-weight:500">কেউ নেই</span></summary><div class="ab" id="abs"></div></details>
   </div>
-  <div id="out"></div>
   <div id="pp"></div>
+  <div style="margin:0 0 14px"><button class="btn p lg" id="gbtn" onclick="gen()">⚡ ডিউটি বণ্টন করুন</button></div>
+  <div id="out"></div>
 </section>
 <!-- ইতিহাস -->
 <section class="view" id="v-his">
@@ -481,6 +480,7 @@ function renderDo(){
   $('dlab').innerHTML=dstr(d)+' '+bdg(day);
   $('gbtn').textContent=day?'↻ আবার বণ্টন করুন':'⚡ ডিউটি বণ্টন করুন';
   $('abs').innerHTML=S.map((s,i)=>isAct(i)?'<button class="ch'+(ABS.indexOf(i)>=0?' x':'')+'" onclick="togAbs('+i+')">'+BN(i+1)+'. '+snn(s)+'</button>':'').join('');
+  $('abn').textContent=ABS.length?BN(ABS.length)+' জন · '+ABS.map(i=>snn(S[i])).join(', '):'কেউ নেই';
   let h='';
   if(day){
     h='<div class="card"><h3>'+dstr(d)+bdg(day)+'</h3>';
@@ -492,9 +492,9 @@ function renderDo(){
     h+='<div class="acts">'+(day.fin?'<button class="btn" onclick="fin(\''+d+'\',false)">↩ খসড়ায় ফেরান</button>':'<button class="btn g" onclick="fin(\''+d+'\',true)">✔ ফাইনাল করুন</button>')+'<button class="btn p" onclick="openSh(\''+d+'\')">↗ শেয়ার</button></div></div>';
   }
   $('out').innerHTML=h;
-  const ks=Object.keys(st.days).filter(k=>k!==d).sort().slice(-3);
+  const ks=Object.keys(st.days).filter(k=>k!==d).sort().slice(-1);
   let q='';
-  if(ks.length){q='<details class="card" open><summary>সর্বশেষ ৩ দিনের ডিউটি</summary>';
+  if(ks.length){q='<details class="card" open><summary>সর্বশেষ ১ দিনের ডিউটি</summary>';
     ks.forEach((k,i)=>{const y=st.days[k],L=i===ks.length-1;
       q+='<div class="pdy'+(L?' latest':'')+'"><div class="pdh">'+dstr(k)+(L?'<span class="bd n">সর্বশেষ</span>':'')+bdg(y)+'</div>';
       st.shifts.forEach((s,si)=>{q+='<div class="pdl"><span>'+EN(s.t)+'</span><b>'+(names(y,si).map(v=>v==null?'—':fnm(S[v])).join('<br>')||'—')+'</b></div>';});
